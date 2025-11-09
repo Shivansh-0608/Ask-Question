@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> QNA  </title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font import for a nicer look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fce7f3; /* Light Pink Background */
+        }
+
+        /* --- Heart Shape CSS --- */
+        .heart {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            background-color: #ef4444; /* Red color */
+            transform: rotate(-45deg);
+            margin-bottom: 50px; /* Space below the heart */
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5);
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background-color: #ef4444; /* Red color */
+            border-radius: 50%;
+        }
+
+        .heart::before {
+            top: -75px;
+            left: 0;
+        }
+
+        .heart::after {
+            top: 0;
+            left: 75px;
+        }
+
+        /* Heart animation */
+        @keyframes pulse {
+            0% { transform: scale(1) rotate(-45deg); }
+            50% { transform: scale(1.1) rotate(-45deg); }
+            100% { transform: scale(1) rotate(-45deg); }
+        }
+
+        /* --- Custom Button Styling --- */
+        #noButton {
+            /* Start with relative positioning, JS will change it to absolute */
+            position: relative; 
+            transition: all 0.3s ease-out; /* Smooth transition for movement */
+        }
+
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main Card Container -->
+    <div id="mainContainer" class="bg-white p-8 md:p-12 rounded-xl shadow-2xl max-w-lg w-full text-center border-4 border-red-200">
+
+        <!-- Heart Visual -->
+        <div class="flex justify-center">
+            <div class="heart"></div>
+        </div>
+
+        <!-- Question and Buttons Area -->
+        <div id="questionArea">
+            <h1 class="text-3xl md:text-4xl font-black text-red-600 mb-8">
+                love you kajju katli 
+            </h1>
+
+            <div id="buttonContainer" class="relative flex justify-center space-x-8 h-20">
+                
+                <!-- Yes Button (Fixed Position) -->
+                <button id="yesButton" 
+                    class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-150 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300">
+                    Yes
+                </button>
+
+                <!-- No Button (Moving Position) -->
+                <button id="noButton" 
+                    class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-150 ease-in-out">
+                    No
+                </button>
+            </div>
+        </div>
+
+        <!-- Message Box (Initially Hidden) -->
+        <div id="messageBox" class="hidden mt-8 p-6 bg-red-100 border-l-4 border-red-500 rounded-lg">
+            <!-- Content will be added by JavaScript -->
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const noButton = document.getElementById('noButton');
+            const yesButton = document.getElementById('yesButton');
+            const mainContainer = document.getElementById('mainContainer');
+            const questionArea = document.getElementById('questionArea');
+            const messageBox = document.getElementById('messageBox');
+
+            // --- No Button Logic: Run Away on Mouse Over ---
+            noButton.addEventListener('mouseover', () => {
+                // Get bounds of the main card container
+                const containerRect = mainContainer.getBoundingClientRect();
+                const buttonRect = noButton.getBoundingClientRect();
+
+                // Calculate max safe positions relative to the container
+                // We want to ensure the button stays inside the card (mainContainer)
+                // The card is centered, so the left/top properties should be relative to its top-left corner.
+                
+                // Max X position (container width - button width - padding/margin)
+                const maxX = containerRect.width - buttonRect.width - 40; 
+                // Max Y position (we'll keep it within the bottom half of the card)
+                const maxY = containerRect.height - buttonRect.height - 40; 
+                
+                // Min X/Y to keep it away from the top/left edge
+                const minPos = 40;
+
+                // Generate random position
+                const randomX = Math.floor(Math.random() * (maxX - minPos)) + minPos;
+                const randomY = Math.floor(Math.random() * (maxY - minPos)) + minPos;
+
+                // To position correctly using absolute within the card, we must set the button's position type
+                noButton.style.position = 'absolute'; 
+
+                // The button's initial state is within 'buttonContainer' which is below the heart. 
+                // For global movement within the 'mainContainer' card, we need to adjust the positioning 
+                // and placement to make sure it covers the whole card area.
+                
+                // Let's make the main container the reference for absolute positioning
+                noButton.style.left = `${randomX}px`;
+                noButton.style.top = `${randomY}px`;
+                
+                // Set the container to be the reference point for absolute positioning
+                mainContainer.style.position = 'relative'; 
+
+                // The 'No' button is now absolutely positioned relative to 'mainContainer'.
+                // We need to re-fetch its location since the initial positioning context was `buttonContainer`.
+                // For simplicity and immediate effect, let's just use random values within the main card area.
+                
+                // Calculate random movement relative to the current position to make it look like it's running away
+                // The button is inside the `buttonContainer` which itself is inside `mainContainer`.
+                // A simpler way is to use transform translate for movement relative to its current position.
+                
+                // Let's reset position to relative inside the original div, and use CSS transform to move it
+                
+                // Get the button's current position within its parent (`buttonContainer`)
+                const currentButtonRect = noButton.getBoundingClientRect();
+                
+                // Calculate movement amount (e.g., move 100-200px in a random direction)
+                const moveAmount = Math.floor(Math.random() * 100) + 100; // 100 to 200px
+                const angle = Math.random() * 2 * Math.PI; // Random angle
+                
+                const deltaX = Math.cos(angle) * moveAmount;
+                const deltaY = Math.sin(angle) * moveAmount;
+
+                // Apply the movement using translation
+                noButton.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            });
+            
+            // --- Yes Button Logic: Show Success Message ---
+            yesButton.addEventListener('click', () => {
+                // Remove the movement effect just in case
+                noButton.style.transition = 'none';
+                noButton.style.transform = 'none';
+
+                // Hide the question and buttons
+                questionArea.classList.add('hidden');
+                
+                // Show the message box
+                messageBox.classList.remove('hidden');
+                
+                // Update the message box content
+                messageBox.innerHTML = `
+                    <div class="space-y-4">
+                        <svg class="w-16 h-16 text-green-500 mx-auto animate-bounce" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <h2 class="text-4xl font-extrabold text-red-700">I KNEW IT! ❤️</h2>
+                        <p class="text-xl mt-4 text-gray-700 font-semibold">
+                            You just made this heart beat faster! Thank you for saying Yes.
+                        </p>
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>
